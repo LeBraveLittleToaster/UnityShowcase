@@ -4,24 +4,11 @@ import de.pschiessle.showcase.messages.req.RequestType;
 import java.util.UUID;
 
 public class Request {
-  private RequestType messageType;
-  private String requestId;
+  public final RequestType messageType;
+  public final String requestId;
 
-  public Request() {
-
-  }
-
-  public Request(RequestType messageType) {
+  public Request(RequestType messageType, String requestId) {
     this.messageType = messageType;
-    this.requestId = UUID.randomUUID().toString();
+    this.requestId = requestId;
   }
-
-  public RequestType getMessageType() {
-    return messageType;
-  }
-
-  public String getRequestId() {
-    return requestId;
-  }
-
 }

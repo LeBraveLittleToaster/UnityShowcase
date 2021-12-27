@@ -2,7 +2,6 @@ package de.pschiessle.showcase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import de.pschiessle.showcase.data.Entity;
 import de.pschiessle.showcase.utils.Vector3Int;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

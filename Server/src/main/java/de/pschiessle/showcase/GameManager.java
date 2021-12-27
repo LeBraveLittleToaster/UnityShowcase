@@ -1,39 +1,61 @@
 package de.pschiessle.showcase;
 
-import de.pschiessle.showcase.data.Entity;
-import de.pschiessle.showcase.utils.Vector3Int;
-import java.util.LinkedList;
+import de.pschiessle.showcase.data.GameBoard;
+import de.pschiessle.showcase.data.Player;
+import de.pschiessle.showcase.data.Seed;
+import de.pschiessle.showcase.data.SeedType;
+import de.pschiessle.showcase.data.updates.TileUpdate;
+import de.pschiessle.showcase.messages.general.TickMsg;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 
 public class GameManager {
 
-  private List<Entity> entitiesList;
-  private AtomicInteger idCreator;
+  private Map<SeedType, Seed> seedConfig;
+  private Player player;
+  private GameBoard gameBoard;
+  private long clock;
+  private List<TileUpdate> tileUpdates;
 
   public GameManager() {
-    this.entitiesList = new LinkedList<>();
-    this.idCreator = new AtomicInteger();
+
+    this.player = new Player();
+    this.gameBoard = new GameBoard(10,10);
+    this.clock = 0;
   }
 
-  public Entity addEntity(String name, Vector3Int initPos ){
-    Entity entity = new Entity(initPos,name, idCreator.incrementAndGet());
-    entitiesList.add(entity);
-    return entity;
+  public void tick(){
+    this.clock += 1;
+    gameBoard.tick(this.clock);
   }
 
-  public void removeEntity(int id){
-    entitiesList.removeIf(e -> e.getId() == id);
+  public void sendTickMsg(){
+    TickMsg msg = new TickMsg(tileUpdates);
+
   }
 
-  public List<Entity> getEntitiesList() {
-    return entitiesList;
+  public void addTileUpdate(TileUpdate tileUpdate){
+    tileUpdates.add(tileUpdate);
   }
 
-  public Optional<Entity> moveEntityTo(int entityId, Vector3Int position) {
-    Optional<Entity> entity = entitiesList.stream().filter(e -> e.getId() == entityId).findFirst();
-    entity.ifPresent(value -> value.setPos(position));
-    return entity;
+  private Map<SeedType, Seed> createSeedConfigs(){
+    Map<SeedType, Seed> seeds = new HashMap<>();
+    seeds.put(SeedType.GRASS, new Seed(SeedType.GRASS, 1,0.1f,1,0));
+    seeds.put(SeedType.WHEAT, new Seed(SeedType.WHEAT, 2,0.5f,2,0));
+    seeds.put(SeedType.CORN, new Seed(SeedType.CORN, 4,0.1f,5,0));
+    return seeds;
+  }
+
+  public Seed getSeedConfig(SeedType seedType){
+    return seedConfig.get(seedType);
+  }
+
+  public Player getPlayer() {
+    return player;
+  }
+
+  public GameBoard getGameBoard() {
+    return gameBoard;
   }
 }
