@@ -7,8 +7,12 @@ import de.pschiessle.showcase.Network;
 import de.pschiessle.showcase.messages.req.MoveEntityReq;
 import de.pschiessle.showcase.messages.resp.MoveEntityResp;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MoveEntityHandler implements ActionHandler {
+
+  private static Logger LOG = LoggerFactory.getLogger(MoveEntityHandler.class);
 
   public final MoveEntityReq message;
   public final GameManager gameManager;
@@ -27,15 +31,16 @@ public class MoveEntityHandler implements ActionHandler {
   public boolean validate() {
     return gameManager.getEntitiesList()
         .stream()
-        .noneMatch(e -> e.getPos().equals(message.position))
+        .noneMatch(e -> e.getPos().equals(message.getPosition()))
         && gameManager.getEntitiesList()
         .stream()
-        .anyMatch(e -> e.getId() == message.entityId);
+        .anyMatch(e -> e.getId() == message.getEntityId());
   }
 
   @Override
   public void execute() {
-    Optional<Entity> entity = gameManager.moveEntityTo(message.entityId, message.position);
-    entity.ifPresent(e -> network.broadcast(gson.toJson(new MoveEntityResp(e, message.requestId))));
+
+    Optional<Entity> entity = gameManager.moveEntityTo(message.getEntityId(), message.getPosition());
+    entity.ifPresent(e -> network.broadcast(gson.toJson(new MoveEntityResp(e, message.getRequestId()))));
   }
 }

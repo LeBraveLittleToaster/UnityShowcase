@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityTemplateProjects;
 
@@ -7,7 +6,7 @@ public class GameManager : MonoBehaviour
     public GameObject prefabCharacter;
 
     private GameBoard _gameBoard;
-    
+
     void Start()
     {
         this._gameBoard = new GameBoard();
@@ -17,6 +16,12 @@ public class GameManager : MonoBehaviour
         MoveCharacter(2, new Vector3Int(0, 0, 3));
     }
 
+    public void SpawnCharacterToServer()
+    {
+        var spawnReq = new SpawnEntityRequest("TestName", new Vector3Int(2, 0, 2));
+        GetComponent<Connection>().SendWebSocketMessage(JsonUtility.ToJson(spawnReq));
+    }
+    
     public void SpawnCharacter(string name, Vector3Int pos, int id)
     {
         GameObject go = Instantiate(prefabCharacter, pos, Quaternion.identity) as GameObject;
@@ -26,7 +31,6 @@ public class GameManager : MonoBehaviour
     public void MoveCharacter(int entityId, Vector3Int waypoint)
     {
         this._gameBoard.MoveEntity(entityId, waypoint);
-        
     }
 
     // Update is called once per frame

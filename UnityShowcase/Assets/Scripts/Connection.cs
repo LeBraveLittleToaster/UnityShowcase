@@ -1,69 +1,50 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+using System.Text;
 using NativeWebSocket;
+using UnityEngine;
 
 public class Connection : MonoBehaviour
 {
-  WebSocket websocket;
+    WebSocket websocket;
 
-  // Start is called before the first frame update
-  async void Start()
-  {
-    websocket = new WebSocket("ws://localhost:1234");
-
-    websocket.OnOpen += () =>
+    // Start is called before the first frame update
+    async void Start()
     {
-      Debug.Log("Connection open!");
-    };
+        websocket = new WebSocket("ws://localhost:1234");
 
-    websocket.OnError += (e) =>
-    {
-      Debug.Log("Error! " + e);
-    };
+        websocket.OnOpen += () => { Debug.Log("Connection open!"); };
 
-    websocket.OnClose += (e) =>
-    {
-      Debug.Log("Connection closed!");
-    };
+        websocket.OnError += (e) => { Debug.Log("Error! " + e); };
 
-    websocket.OnMessage += (bytes) =>
-    {
-      Debug.Log("OnMessage!");
-      Debug.Log(bytes);
+        websocket.OnClose += (e) => { Debug.Log("Connection closed!"); };
 
-      // getting the message as a string
-      var message = System.Text.Encoding.UTF8.GetString(bytes);
-      Debug.Log("OnMessage! " + message);
-    };
-
-    // Keep sending messages at every 0.3s
-    InvokeRepeating("SendWebSocketMessage", 0.0f, 0.3f);
-
-    // waiting for messages
-    await websocket.Connect();
-  }
-
-  void Update()
-  {
-    #if !UNITY_WEBGL || UNITY_EDITOR
-      websocket.DispatchMessageQueue();
-    #endif
-  }
-
-  async void SendWebSocketMessage()
-  {
-    if (websocket.State == WebSocketState.Open)
-    {
-      await websocket.SendText("Hello World");
+        websocket.OnMessage += (bytes) =>
+        {
+           var message = Encoding.UTF8.GetString(bytes);
+            Debug.Log("OnMessage! " + message);
+        };
+        
+        Debug.Log("Trying to connect");
+        
+        await websocket.Connect();
     }
-  }
 
-  private async void OnApplicationQuit()
-  {
-    await websocket.Close();
-  }
+    void Update()
+    {
+        #if !UNITY_WEBGL || UNITY_EDITOR
+                websocket.DispatchMessageQueue();
+        #endif
+    }
 
+    public async void SendWebSocketMessage(string message)
+    {
+        if (websocket.State == WebSocketState.Open)
+        {
+            await websocket.SendText(message);
+        }
+    }
+
+    private async void OnApplicationQuit()
+    {
+        await websocket.Close();
+    }
 }

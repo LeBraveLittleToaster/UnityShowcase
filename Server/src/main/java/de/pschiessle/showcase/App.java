@@ -1,6 +1,8 @@
 package de.pschiessle.showcase;
 
 import com.google.gson.Gson;
+import de.pschiessle.showcase.handler.ActionHandler;
+import de.pschiessle.showcase.handler.HandleExecutor;
 import de.pschiessle.showcase.handler.MoveEntityHandler;
 import de.pschiessle.showcase.handler.SpawnEntityHandler;
 import de.pschiessle.showcase.messages.req.MoveEntityReq;
@@ -17,18 +19,24 @@ public class App {
 
   public App() {
     this.gameManager = new GameManager();
-    this.network = new Network(this,1234);
+    this.network = new Network(this, 1234);
   }
 
   public void handleMessage(WebSocket conn, String msg) {
     System.out.println("Handling message: " + msg);
     Request container = gson.fromJson(msg, Request.class);
-    switch (container.messageType) {
-      case SPAWN_ENTITY -> new SpawnEntityHandler(gson.fromJson(msg, SpawnEntityReq.class),
-          gameManager, network, gson).execute();
-      case MOVE_ENTITY -> new MoveEntityHandler(gson.fromJson(msg, MoveEntityReq.class),
-          gameManager, network, gson).execute();
+
+    ActionHandler handler = null;
+    switch (container.getMessageType()) {
+      case SPAWN_ENTITY -> handler = new SpawnEntityHandler(
+          gson.fromJson(msg, SpawnEntityReq.class),
+          gameManager, network, gson);
+      case MOVE_ENTITY -> handler = new MoveEntityHandler(gson.fromJson(msg, MoveEntityReq.class),
+          gameManager, network, gson);
       default -> network.broadcast(msg);
+    }
+    if (handler != null) {
+      HandleExecutor.executeHandler(handler);
     }
   }
 

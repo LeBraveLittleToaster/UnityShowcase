@@ -25,11 +25,11 @@ public class RemoveEntityHandler implements ActionHandler{
   public boolean validate() {
     return gameManager.getEntitiesList()
         .stream()
-        .anyMatch(e -> e.getId() == message.entityId);
+        .anyMatch(e -> e.getId() == message.getEntityId());
   }
 
   @Override
   public void execute() {
-    gameManager.removeEntity(message.entityId);
+    gameManager.removeEntity(message.getEntityId());
   }
 }
